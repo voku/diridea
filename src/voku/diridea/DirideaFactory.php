@@ -19,7 +19,7 @@ final class DirideaFactory
      */
     public static function create(
         string $path,
-        ?string $filesystemAdapterClass,
+        ?string $filesystemAdapterClass = null,
         ?LoggerInterface $logger = null
     ): Diridea
     {
@@ -27,6 +27,7 @@ final class DirideaFactory
             $filesystemAdapterClass ?? LocalFilesystemAdapter::class,
             $path,
             $logger,
+            null,
             null,
             [
                 new VisibilityDefault()
