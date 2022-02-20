@@ -1,7 +1,7 @@
 
 # :file_folder: Diridea
 
-The idea of this library is to provide a simple and easy to understand directory structure for your static files in your project.
+The idea of this library is to provide a simple and easy to understand directory structure for the files in your project + you can run logic on the files and directories.
 
 ### abstract
 
@@ -54,6 +54,3 @@ For professional support please contact [me](https://about.me/voku).
 - Thanks to [Travis CI](https://travis-ci.com/) for being the most awesome, easiest continous integration tool out there!
 - Thanks to [StyleCI](https://styleci.io/) for the simple but powerfull code style check.
 - Thanks to [PHPStan](https://github.com/phpstan/phpstan) && [Psalm](https://github.com/vimeo/psalm) for relly great Static analysis tools and for discover bugs in the code!
-
-### License
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fvoku%2Fdiridea.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fvoku%2Fdiridea?ref=badge_large)
