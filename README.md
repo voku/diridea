@@ -9,9 +9,9 @@ The idea of this library is to provide a simple and easy to understand directory
 
 ### regex
 
-https://regex101.com/r/RVr7SJ/1
+https://regex101.com/r/wM17gy/1
 
-```#(?<prefix>.*?)--(?<location>web|backend)_(?<visibility>public|private)_(?<timings>(?<timing_option>expire|archive)(?<timing_value>\d*)(?<timing_unit>[d|h])[_]?)?(?<encrypt>encrypt[_]?)?(?<backup>backup[_]?)?(?<cache>cache[_]?)?#```
+```#(?<prefix>.*?)--(?<location>web|backend)_(?<visibility>public|private)(?<timings>(?<timing_option>_expire|_archive)(?<timing_value>\d+)(?<timing_unit>[d|h]))?(?<encrypt>_encrypt)??(?<backup>_backup)?(?<cache>_cache?)?#```
 
 ### example
 

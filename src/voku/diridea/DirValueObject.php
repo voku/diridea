@@ -67,24 +67,30 @@ class DirValueObject
         $this->prefix = $prefix;
 
         if (!in_array($location, ['web', 'backend'])) {
-            throw new \InvalidArgumentException('Invalid location');
+            throw new \InvalidArgumentException('Invalid location:' . $location);
         }
         $this->location = $location;
 
         if (!in_array($visibility, ['public', 'private'])) {
-            throw new \InvalidArgumentException('Invalid visibility');
+            throw new \InvalidArgumentException('Invalid visibility: ' . $visibility);
         }
         $this->visibility = $visibility;
 
         if ($timing_option !== null && !in_array($timing_option, ['expire', 'archive'])) {
-            throw new \InvalidArgumentException('Invalid timing option');
+            throw new \InvalidArgumentException('Invalid timing option: ' . $timing_option);
         }
         $this->timing_option = $timing_option;
 
+        if ($timing_option !== null && $timing_value === null) {
+            throw new \InvalidArgumentException('Invalid timing value');
+        }
         $this->timing_value = $timing_value;
 
-        if ($timing_unit !== null && !in_array($timing_unit, ['d', 'm'])) {
+        if ($timing_option !== null && $timing_unit === null) {
             throw new \InvalidArgumentException('Invalid timing unit');
+        }
+        if ($timing_unit !== null && !in_array($timing_unit, ['d', 'h'])) {
+            throw new \InvalidArgumentException('Invalid timing unit: ' . $timing_unit);
         }
         $this->timing_unit = $timing_unit;
 
@@ -136,17 +142,17 @@ class DirValueObject
         return $this->timing_option;
     }
 
-    /**
-     * @var null|DirValueObject::TIMING_UNIT_*
-     */
-    public function timingUnit(): ?string
+    public function timingValueInSeconds(): ?int
     {
-        return $this->timing_unit;
-    }
+        if ($this->timing_unit === self::TIMING_UNIT_DAY) {
+            return $this->timing_value * 86400;
+        }
 
-    public function timingValue(): ?int
-    {
-        return $this->timing_value;
+        if ($this->timing_unit === self::TIMING_UNIT_WEEK) {
+            return $this->timing_value * 604800;
+        }
+
+        throw new \RuntimeException('Invalid timing unit');
     }
 
     /**

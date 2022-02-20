@@ -21,17 +21,7 @@ use voku\diridea\processes\VisibilityInterface;
 
 final class Diridea
 {
-    private const REGEX = '#' .
-                           '(?<prefix>.*?)' .
-                           '--' .
-                           '(?<location>web|backend)' .
-                           '_' .
-                           '(?<visibility>public|private)' .
-                           '(?<timings>(?<timing_option>_expire|_archive)(?<timing_value>\d*)(?<timing_unit>[d|h]))?' .
-                           '?(?<encrypt>_encrypt)?' .
-                           '?(?<backup>_backup)?' .
-                           '(?<cache>cache[_]?)?' .
-                           '#';
+    private const REGEX = '#(?<prefix>.*?)--(?<location>web|backend)_(?<visibility>public|private)(?<timings>(?<timing_option>_expire|_archive)(?<timing_value>\d+)(?<timing_unit>[d|h]))?(?<encrypt>_encrypt)??(?<backup>_backup)?(?<cache>_cache?)?#';
 
     /**
      * @var array<string, DirValueObject>
@@ -357,12 +347,12 @@ final class Diridea
                         $matches['prefix'],
                         $matches['location'],
                         $matches['visibility'],
-                        $matches['timing_option'] ?? null,
+                        isset($matches['timing_option']) ? \ltrim($matches['timing_option'], '_') : null,
                         isset($matches['timing_value']) ? (int) $matches['timing_value'] : null,
                         $matches['timing_unit'] ?? null,
-                        ($matches['encrypt'] ?? null) === 'encrypt',
-                        ($matches['backup'] ?? null) === 'backup',
-                        ($matches['cache'] ?? null) === 'cache'
+                        (isset($matches['encrypt']) ? \ltrim($matches['encrypt'], '_') : null) === 'encrypt',
+                        (isset($matches['backup']) ? \ltrim($matches['backup'], '_') : null) === 'backup',
+                        (isset($matches['cache']) ? \ltrim($matches['cache'], '_') : null) === 'cache'
                     );
                 }
             }
