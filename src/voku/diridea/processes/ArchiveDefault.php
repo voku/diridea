@@ -6,7 +6,7 @@ use League\Flysystem\Filesystem;
 use League\Flysystem\StorageAttributes;
 use voku\diridea\DirValueObject;
 
-class ExpireDefault implements ExpireInterface
+class ArchiveDefault implements ArchiveInterface
 {
     public function isApplicable(Filesystem $filesystem, DirValueObject $options, StorageAttributes $listContent): bool
     {
@@ -18,9 +18,9 @@ class ExpireDefault implements ExpireInterface
     public function process(Filesystem $filesystem, DirValueObject $options, StorageAttributes $listContent): void
     {
         if ($listContent->isDir()) {
-            $filesystem->deleteDirectory($listContent->path());
+            $filesystem->move($listContent->path(), $listContent->path() . '/archiv/' . basename($listContent->path()));
         } else {
-            $filesystem->delete($listContent->path());
+            $filesystem->move($listContent->path(), dirname($listContent->path()) . '/archiv/' . basename($listContent->path()));
         }
     }
 }

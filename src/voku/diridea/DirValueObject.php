@@ -28,7 +28,7 @@ class DirValueObject
 
     public const TIMING_UNIT_DAY = 'd';
 
-    public const TIMING_UNIT_WEEK = 'm';
+    public const TIMING_UNIT_HOUR = 'h';
 
     /**
      * @var null|DirValueObject::TIMING_UNIT_*
@@ -157,11 +157,11 @@ class DirValueObject
             return $this->timing_value * 86400;
         }
 
-        if ($this->timing_unit === self::TIMING_UNIT_WEEK) {
-            return $this->timing_value * 604800;
+        if ($this->timing_unit === self::TIMING_UNIT_HOUR) {
+            return $this->timing_value * 3600;
         }
 
-        throw new \RuntimeException('Invalid timing unit');
+        throw new \RuntimeException('Invalid timing unit: ' . $this->timing_unit);
     }
 
     /**

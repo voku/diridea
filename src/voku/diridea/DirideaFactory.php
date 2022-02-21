@@ -7,6 +7,7 @@ namespace voku\diridea;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use Psr\Log\LoggerInterface;
+use voku\diridea\processes\ArchiveDefault;
 use voku\diridea\processes\ExpireDefault;
 use voku\diridea\processes\LocationDefault;
 use voku\diridea\processes\VisibilityDefault;
@@ -39,7 +40,13 @@ final class DirideaFactory
             ],
             [
                 new ExpireDefault()
-            ]
+            ],
+            [
+                new ArchiveDefault()
+            ],
+            [],
+            [],
+            []
         );
     }
 }
