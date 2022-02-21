@@ -3,17 +3,17 @@
 
 The idea of this library is to provide a simple and easy to understand directory structure for the files in your project + you can run logic on the files and directories.
 
-### abstract
+### Abstract
 
 ```*--[web|backend]_[public|private]_[expire|archive]\d[d|h]?_[encrypt]?_[backup]?_[cache]?```
 
-### regex
+### Regex
 
 https://regex101.com/r/wM17gy/1
 
 ```#(?<prefix>.*?)--(?<location>web|backend)_(?<visibility>public|private)(?<timings>(?<timing_option>_expire|_archive)(?<timing_value>\d+)(?<timing_unit>[d|h]))?(?<encrypt>_encrypt)??(?<backup>_backup)?(?<cache>_cache?)?#```
 
-### example
+### Example
 
 e.g.: ```download--web_public_expire30d```
 
@@ -22,6 +22,14 @@ e.g.: ```download--web_public_expire30d```
 e.g.: ```article_images--backend_private_archive7h_encrypt```
 
 -> directory with the prefix "article_images" available in the backend, only accessible for the current system-user and the files will be moved into the "article_images*/archive/" directory after 7 hours
+
+### Usage
+
+$diridea = DirideaFactory::create(
+__DIR__ . '/fixture/overview/',
+__DIR__ . '/fixture/web/'
+);
+$result = $diridea->run();
 
 
 ### Unit Test:

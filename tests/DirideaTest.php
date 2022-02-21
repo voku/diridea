@@ -12,7 +12,7 @@ final class DirideaTest extends TestCase
 {
     public function testSimpleFactory(): void
     {
-        $diridea = DirideaFactory::create(
+        $diridea = DirideaFactory::createDebug(
             __DIR__ . '/fixture/overview/',
             __DIR__ . '/fixture/web/'
         );
