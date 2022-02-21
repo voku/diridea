@@ -93,7 +93,9 @@ final class Diridea
         $this->logger = $logger;
         $this->loggerVerbosity = $loggerVerbosity;
 
-        $this->log('Path: ' . $path);
+        $this->basePath = $path;
+
+        $this->log('Path: ' . $this->basePath);
 
         if ($visibilityProcesses !== null) {
             foreach ($visibilityProcesses as $visibilityProcess) {
@@ -344,6 +346,7 @@ final class Diridea
                 if ($count > 0) {
                     $dirs[$listContent->path()] = new DirValueObject(
                         $listContent->path(),
+                        $this->basePath,
                         $matches['prefix'],
                         $matches['location'],
                         $matches['visibility'],

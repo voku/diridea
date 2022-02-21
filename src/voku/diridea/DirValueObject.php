@@ -14,6 +14,8 @@ class DirValueObject
 
     private string $path;
 
+    private string $basePath;
+
     private string $prefix;
 
     public const TIMING_OPTION_EXPIRE = 'expire';
@@ -52,6 +54,7 @@ class DirValueObject
 
     public function __construct(
         string $path,
+        string $basePath,
         string $prefix,
         string $location,
         string $visibility,
@@ -64,6 +67,7 @@ class DirValueObject
     )
     {
         $this->path = $path;
+        $this->basePath = $basePath;
         $this->prefix = $prefix;
 
         if (!in_array($location, ['web', 'backend'])) {
@@ -132,6 +136,11 @@ class DirValueObject
     public function prefix(): string
     {
         return $this->prefix;
+    }
+
+    public function basePath(): string
+    {
+        return $this->basePath;
     }
 
     /**

@@ -8,6 +8,7 @@ use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\Local\LocalFilesystemAdapter;
 use Psr\Log\LoggerInterface;
 use voku\diridea\processes\ExpireDefault;
+use voku\diridea\processes\LocationDefault;
 use voku\diridea\processes\VisibilityDefault;
 
 final class DirideaFactory
@@ -20,6 +21,7 @@ final class DirideaFactory
      */
     public static function create(
         string $path,
+        string $publicWebPath,
         ?string $filesystemAdapterClass = null,
         ?LoggerInterface $logger = null
     ): Diridea
@@ -29,7 +31,9 @@ final class DirideaFactory
             $path,
             $logger,
             null,
-            null,
+            [
+                new LocationDefault($publicWebPath)
+            ],
             [
                 new VisibilityDefault()
             ],
