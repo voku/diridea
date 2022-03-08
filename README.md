@@ -13,7 +13,7 @@ https://regex101.com/r/wM17gy/1
 
 ```#(?<prefix>.*?)--(?<location>web|backend)_(?<visibility>public|private)(?<timings>(?<timing_option>_expire|_archive)(?<timing_value>\d+)(?<timing_unit>[d|h]))?(?<encrypt>_encrypt)??(?<backup>_backup)?(?<cache>_cache?)?#```
 
-### Example
+### Examples
 
 e.g.: ```download--web_public_expire30d```
 
