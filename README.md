@@ -26,8 +26,8 @@ e.g.: ```article_images--backend_private_archive7h_encrypt```
 ### Usage
 
 $diridea = DirideaFactory::create(
-__DIR__ . '/fixture/overview/',
-__DIR__ . '/fixture/web/'
+\_\_DIR\_\_ . '/fixture/overview/',
+\_\_DIR\_\_ . '/fixture/web/'
 );
 $result = $diridea->run();
 
