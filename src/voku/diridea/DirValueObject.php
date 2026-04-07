@@ -123,7 +123,7 @@ class DirValueObject
     }
 
     /**
-     * @var DirValueObject::LOCATION_*
+     * @return DirValueObject::LOCATION_*
      */
     public function location(): string
     {
@@ -146,7 +146,7 @@ class DirValueObject
     }
 
     /**
-     * null|DirValueObject::TIMING_OPTION_*
+     * @return null|DirValueObject::TIMING_OPTION_*
      */
     public function timingOption(): ?string
     {
