@@ -30,12 +30,14 @@ final class Diridea
 
     private Filesystem $filesystem;
 
+    private string $basePath;
+
     private ?LoggerInterface $logger;
 
     /**
      * @var null|\Psr\Log\LogLevel::*
      */
-    private ?int $loggerVerbosity;
+    private ?string $loggerVerbosity;
 
     /**
      * @var null|array<int, VisibilityInterface>
@@ -182,7 +184,7 @@ final class Diridea
     private function log(string $message): void
     {
         if ($this->logger !== null) {
-            $this->logger->log($this->loggerVerbosity, $message);
+            $this->logger->log($this->loggerVerbosity ?? \Psr\Log\LogLevel::DEBUG, $message);
         }
     }
 

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace voku\diridea;
 
 class DirValueObject
@@ -153,6 +155,10 @@ class DirValueObject
 
     public function timingValueInSeconds(): ?int
     {
+        if ($this->timing_value === null) {
+            return null;
+        }
+
         if ($this->timing_unit === self::TIMING_UNIT_DAY) {
             return $this->timing_value * 86400;
         }

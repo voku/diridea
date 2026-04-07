@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace voku\diridea\processes;
 
 use League\Flysystem\Filesystem;
@@ -10,9 +12,13 @@ class ExpireDebug implements ExpireInterface
 {
     public function isApplicable(Filesystem $filesystem, DirValueObject $options, StorageAttributes $listContent): bool
     {
-        return $filesystem->fileExists($listContent->path())
+        $timingValue = $options->timingValueInSeconds();
+
+        return $timingValue !== null
                &&
-               ($filesystem->lastModified($listContent->path()) + $options->timingValueInSeconds()) <= time();
+               $filesystem->fileExists($listContent->path())
+               &&
+               ($filesystem->lastModified($listContent->path()) + $timingValue) <= time();
     }
 
     public function process(Filesystem $filesystem, DirValueObject $options, StorageAttributes $listContent): void
