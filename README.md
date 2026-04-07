@@ -29,7 +29,7 @@ This means your directory structure **is** your configuration — no separate co
 | `visibility` | `public` \| `private` | File permission level |
 | `timing_option` | `expire` \| `archive` | What to do when the timing threshold is reached |
 | `timing_value` | integer | The number of time units |
-| `timing_unit` | `d` (days) \| `h` (hours) | Unit for the timing value |
+| `timing_unit` | `d` (days) or `h` (hours) | Unit for the timing value |
 | `_encrypt` | optional flag | Mark files for encryption |
 | `_backup` | optional flag | Mark files for backup |
 | `_cache` | optional flag | Mark files for caching |

@@ -2,7 +2,6 @@
 
 declare(strict_types=1);
 
-
 namespace voku\diridea\processes;
 
 use League\Flysystem\Filesystem;
