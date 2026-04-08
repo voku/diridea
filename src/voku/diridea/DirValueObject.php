@@ -75,16 +75,19 @@ class DirValueObject
         if (!in_array($location, ['web', 'backend'])) {
             throw new \InvalidArgumentException('Invalid location:' . $location);
         }
+        /** @var 'web'|'backend' $location */
         $this->location = $location;
 
         if (!in_array($visibility, ['public', 'private'])) {
             throw new \InvalidArgumentException('Invalid visibility: ' . $visibility);
         }
+        /** @var 'public'|'private' $visibility */
         $this->visibility = $visibility;
 
         if ($timing_option !== null && !in_array($timing_option, ['expire', 'archive'])) {
             throw new \InvalidArgumentException('Invalid timing option: ' . $timing_option);
         }
+        /** @var 'expire'|'archive'|null $timing_option */
         $this->timing_option = $timing_option;
 
         if ($timing_option !== null && $timing_value === null) {
@@ -98,6 +101,7 @@ class DirValueObject
         if ($timing_unit !== null && !in_array($timing_unit, ['d', 'h'])) {
             throw new \InvalidArgumentException('Invalid timing unit: ' . $timing_unit);
         }
+        /** @var 'd'|'h'|null $timing_unit */
         $this->timing_unit = $timing_unit;
 
         $this->encrypt = $encrypt;
