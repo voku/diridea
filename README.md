@@ -83,6 +83,51 @@ $diridea = DirideaFactory::createDebug(
 $result = $diridea->run(); // prints planned actions, makes no changes
 ```
 
+### PSR-3 logger integration
+
+Pass any PSR-3 compatible logger to capture what Diridea does:
+
+```php
+use voku\diridea\DirideaFactory;
+use Monolog\Logger;
+use Monolog\Handler\StreamHandler;
+
+$logger = new Logger('diridea');
+$logger->pushHandler(new StreamHandler('php://stdout'));
+
+$diridea = DirideaFactory::create(
+    __DIR__ . '/storage/',
+    __DIR__ . '/public/web/',
+    null,   // use default LocalFilesystemAdapter
+    $logger
+);
+$diridea->run();
+```
+
+### Cron / scheduled jobs
+
+Diridea is designed to be called from a cron job or task scheduler. The library itself does not schedule anything — it simply processes your directory tree when called. A typical setup runs every hour:
+
+```
+# /etc/cron.d/diridea
+0 * * * * www-data php /var/www/html/bin/diridea-run.php
+```
+
+`bin/diridea-run.php`:
+
+```php
+<?php
+require __DIR__ . '/../vendor/autoload.php';
+
+use voku\diridea\DirideaFactory;
+
+$diridea = DirideaFactory::create(
+    '/var/www/html/storage/',
+    '/var/www/html/public/web/'
+);
+$diridea->run();
+```
+
 ### Custom processes
 
 You can inject your own process implementations for any of the supported operations:
@@ -110,6 +155,162 @@ Each process type implements a corresponding interface (`LocationInterface`, `Vi
 
 - `isApplicable(Filesystem, DirValueObject, StorageAttributes): bool` — decides whether the process should run for a given file/directory
 - `process(Filesystem, DirValueObject, StorageAttributes): void` — performs the actual operation
+
+#### Example: custom encrypt process
+
+```php
+use League\Flysystem\Filesystem;
+use League\Flysystem\StorageAttributes;
+use voku\diridea\DirValueObject;
+use voku\diridea\processes\EncryptInterface;
+
+class MyEncryptProcess implements EncryptInterface
+{
+    public function isApplicable(Filesystem $filesystem, DirValueObject $options, StorageAttributes $listContent): bool
+    {
+        return $options->isEncryptDir() && $listContent->isFile();
+    }
+
+    public function process(Filesystem $filesystem, DirValueObject $options, StorageAttributes $listContent): void
+    {
+        $content = $filesystem->read($listContent->path());
+        $encrypted = sodium_crypto_secretbox($content, $nonce, $key); // example
+        $filesystem->write($listContent->path(), $encrypted);
+    }
+}
+```
+
+#### Example: custom backup process (e.g. to S3)
+
+```php
+use League\Flysystem\Filesystem;
+use League\Flysystem\StorageAttributes;
+use League\Flysystem\AwsS3V3\AwsS3V3Adapter;
+use Aws\S3\S3Client;
+use voku\diridea\DirValueObject;
+use voku\diridea\processes\BackupInterface;
+
+class S3BackupProcess implements BackupInterface
+{
+    private Filesystem $s3;
+
+    public function __construct(string $bucket, S3Client $client)
+    {
+        $this->s3 = new Filesystem(new AwsS3V3Adapter($client, $bucket));
+    }
+
+    public function isApplicable(Filesystem $filesystem, DirValueObject $options, StorageAttributes $listContent): bool
+    {
+        return $options->isBackupDir() && $listContent->isFile();
+    }
+
+    public function process(Filesystem $filesystem, DirValueObject $options, StorageAttributes $listContent): void
+    {
+        $stream = $filesystem->readStream($listContent->path());
+        $this->s3->writeStream('backup/' . $listContent->path(), $stream);
+    }
+}
+```
+
+## Workflow Examples
+
+### 1. User upload area with automatic expiry
+
+Store temporary user uploads that are publicly accessible via the web and automatically deleted after 24 hours.
+
+**Directory:**
+
+```
+storage/
+└── user_uploads--web_public_expire1d/
+    ├── avatar_123.png
+    └── document_456.pdf
+```
+
+**What Diridea does each run:**
+- Creates (or keeps) a symlink `public/web/user_uploads--web_public_expire1d → storage/user_uploads--web_public_expire1d`
+- Sets file permissions to `public` (0640)
+- Deletes any file whose last-modified time is older than 24 hours
+
+---
+
+### 2. Article images archived after one week
+
+Backend-only directory for article images. Files older than 7 days are moved to an `archiv/` subdirectory instead of being deleted.
+
+**Directory:**
+
+```
+storage/
+└── article_images--backend_private_archive7d/
+    ├── hero_2024-01-01.jpg
+    └── thumbnail_2024-01-05.jpg
+```
+
+**What Diridea does each run:**
+- Sets file permissions to `private` (0600) — no web symlink is created
+- Moves files older than 7 days into `article_images--backend_private_archive7d/archiv/`
+
+---
+
+### 3. Sensitive documents — backend, private, encrypted, backed up
+
+Documents that must be encrypted at rest and backed up to remote storage.
+
+**Directory:**
+
+```
+storage/
+└── contracts--backend_private_encrypt_backup/
+    ├── contract_001.pdf
+    └── nda_company_xyz.pdf
+```
+
+**What Diridea does each run (requires custom EncryptDefault and BackupDefault process implementations):**
+- Sets file permissions to `private`
+- Encrypts each file in-place using your custom `EncryptInterface` process
+- Copies each file to remote storage using your custom `BackupInterface` process
+
+> **Note:** The library ships with interfaces for `encrypt` and `backup` but does **not** include default implementations for those operations — you must provide your own (see the custom process examples above).
+
+---
+
+### 4. CDN / cache-warmed public assets
+
+Publicly served assets that should be cached and made web-accessible.
+
+**Directory:**
+
+```
+storage/
+└── static_assets--web_public_cache/
+    ├── logo.svg
+    └── styles.min.css
+```
+
+**What Diridea does each run (requires custom CacheDefault process implementation):**
+- Creates/maintains a symlink under `public/web/`
+- Sets file permissions to `public`
+- Invokes your custom `CacheInterface` process (e.g. warming a Redis or Varnish cache)
+
+---
+
+### 5. Hourly report drops with short retention
+
+Automated reports written every hour that should expire after 6 hours.
+
+**Directory:**
+
+```
+storage/
+└── reports--backend_private_expire6h/
+    ├── report_2024-01-01_10-00.csv
+    └── report_2024-01-01_11-00.csv
+```
+
+**What Diridea does each run:**
+- Sets file permissions to `private`
+- Deletes report files that are more than 6 hours old
 
 ## Supported Process Types
 
