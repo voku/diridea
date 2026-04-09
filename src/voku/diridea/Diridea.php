@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace voku\diridea;
 
-use League\Flysystem\DirectoryAttributes;
-use League\Flysystem\FileAttributes;
 use League\Flysystem\Filesystem;
 use League\Flysystem\FilesystemAdapter;
 use League\Flysystem\StorageAttributes;
@@ -30,12 +28,14 @@ final class Diridea
 
     private Filesystem $filesystem;
 
+    private string $basePath;
+
     private ?LoggerInterface $logger;
 
     /**
      * @var null|\Psr\Log\LogLevel::*
      */
-    private ?int $loggerVerbosity;
+    private ?string $loggerVerbosity;
 
     /**
      * @var null|array<int, VisibilityInterface>
@@ -73,8 +73,15 @@ final class Diridea
     private ?array $archiveProcesses = null;
 
     /**
-     * @param class-string<FilesystemAdapter> $filesystemAdapterClass
-     * @param null|\Psr\Log\LogLevel::*       $logVerbosity
+     * @param class-string<FilesystemAdapter>          $filesystemAdapterClass
+     * @param null|\Psr\Log\LogLevel::*                $loggerVerbosity
+     * @param null|array<int, LocationInterface>       $locationProcesses
+     * @param null|array<int, VisibilityInterface>     $visibilityProcesses
+     * @param null|array<int, ExpireInterface>         $expireProcesses
+     * @param null|array<int, ArchiveInterface>        $archiveProcesses
+     * @param null|array<int, EncryptInterface>        $encryptProcesses
+     * @param null|array<int, BackupInterface>         $backupProcesses
+     * @param null|array<int, CacheInterface>          $cacheProcesses
      */
     public function __construct(
         string           $filesystemAdapterClass,
@@ -98,65 +105,30 @@ final class Diridea
         $this->log('Path: ' . $this->basePath);
 
         if ($visibilityProcesses !== null) {
-            foreach ($visibilityProcesses as $visibilityProcess) {
-                if (!$visibilityProcess instanceof VisibilityInterface) {
-                    throw new \InvalidArgumentException('Visibility processes must implement VisibilityInterface');
-                }
-            }
             $this->visibilityProcesses = $visibilityProcesses;
         }
 
         if ($locationProcesses !== null) {
-            foreach ($locationProcesses as $locationProcess) {
-                if (!$locationProcess instanceof LocationInterface) {
-                    throw new \InvalidArgumentException('Location processes must implement LocationInterface');
-                }
-            }
             $this->locationProcesses = $locationProcesses;
         }
 
         if ($expireProcesses !== null) {
-            foreach ($expireProcesses as $expireProcess) {
-                if (!$expireProcess instanceof ExpireInterface) {
-                    throw new \InvalidArgumentException('Expire processes must implement ExpireInterface');
-                }
-            }
             $this->expireProcesses = $expireProcesses;
         }
 
         if ($archiveProcesses !== null) {
-            foreach ($archiveProcesses as $archiveProcess) {
-                if (!$archiveProcess instanceof ArchiveInterface) {
-                    throw new \InvalidArgumentException('Archive processes must implement ArchiveInterface');
-                }
-            }
             $this->archiveProcesses = $archiveProcesses;
         }
 
         if ($encryptProcesses !== null) {
-            foreach ($encryptProcesses as $encryptProcess) {
-                if (!$encryptProcess instanceof EncryptInterface) {
-                    throw new \InvalidArgumentException('Encrypt processes must implement EncryptInterface');
-                }
-            }
             $this->encryptProcesses = $encryptProcesses;
         }
 
         if ($backupProcesses !== null) {
-            foreach ($backupProcesses as $backupProcess) {
-                if (!$backupProcess instanceof BackupInterface) {
-                    throw new \InvalidArgumentException('Backup processes must implement BackupInterface');
-                }
-            }
             $this->backupProcesses = $backupProcesses;
         }
 
         if ($cacheProcesses !== null) {
-            foreach ($cacheProcesses as $cacheProcess) {
-                if (!$cacheProcess instanceof CacheInterface) {
-                    throw new \InvalidArgumentException('Cache processes must implement CacheInterface');
-                }
-            }
             $this->cacheProcesses = $cacheProcesses;
         }
 
@@ -182,7 +154,7 @@ final class Diridea
     private function log(string $message): void
     {
         if ($this->logger !== null) {
-            $this->logger->log($this->loggerVerbosity, $message);
+            $this->logger->log($this->loggerVerbosity ?? \Psr\Log\LogLevel::DEBUG, $message);
         }
     }
 
@@ -200,7 +172,7 @@ final class Diridea
     }
 
     /**
-     * @param DirectoryAttributes[]|FileAttributes[] $listContents
+     * @param array<StorageAttributes> $listContents
      */
     private function processContentHelper(array $listContents, DirValueObject $dir): bool
     {
@@ -238,9 +210,6 @@ final class Diridea
         return $result;
     }
 
-    /**
-     * @param DirectoryAttributes|FileAttributes $listContent
-     */
     private function processContent(DirValueObject $options, StorageAttributes $listContent): bool
     {
         foreach ($this->visibilityProcesses ?? [] as $visibilityProcess) {

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace voku\diridea;
 
 class DirValueObject
@@ -73,16 +75,19 @@ class DirValueObject
         if (!in_array($location, ['web', 'backend'])) {
             throw new \InvalidArgumentException('Invalid location:' . $location);
         }
+        /** @var 'web'|'backend' $location */
         $this->location = $location;
 
         if (!in_array($visibility, ['public', 'private'])) {
             throw new \InvalidArgumentException('Invalid visibility: ' . $visibility);
         }
+        /** @var 'public'|'private' $visibility */
         $this->visibility = $visibility;
 
         if ($timing_option !== null && !in_array($timing_option, ['expire', 'archive'])) {
             throw new \InvalidArgumentException('Invalid timing option: ' . $timing_option);
         }
+        /** @var 'expire'|'archive'|null $timing_option */
         $this->timing_option = $timing_option;
 
         if ($timing_option !== null && $timing_value === null) {
@@ -96,6 +101,7 @@ class DirValueObject
         if ($timing_unit !== null && !in_array($timing_unit, ['d', 'h'])) {
             throw new \InvalidArgumentException('Invalid timing unit: ' . $timing_unit);
         }
+        /** @var 'd'|'h'|null $timing_unit */
         $this->timing_unit = $timing_unit;
 
         $this->encrypt = $encrypt;
@@ -121,7 +127,7 @@ class DirValueObject
     }
 
     /**
-     * @var DirValueObject::LOCATION_*
+     * @return DirValueObject::LOCATION_*
      */
     public function location(): string
     {
@@ -144,7 +150,7 @@ class DirValueObject
     }
 
     /**
-     * null|DirValueObject::TIMING_OPTION_*
+     * @return null|DirValueObject::TIMING_OPTION_*
      */
     public function timingOption(): ?string
     {
@@ -153,6 +159,10 @@ class DirValueObject
 
     public function timingValueInSeconds(): ?int
     {
+        if ($this->timing_value === null) {
+            return null;
+        }
+
         if ($this->timing_unit === self::TIMING_UNIT_DAY) {
             return $this->timing_value * 86400;
         }

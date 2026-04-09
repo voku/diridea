@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace voku\diridea\processes;
 
 use League\Flysystem\Filesystem;
@@ -17,6 +19,7 @@ class LocationDebug implements LocationInterface
 
     public function isApplicable(Filesystem $filesystem, DirValueObject $options, StorageAttributes $listContent): bool
     {
+        /** @var array<string, string> $CACHE_DIR */
         static $CACHE_DIR = [];
 
         if (isset($CACHE_DIR[$options->path()])) {
